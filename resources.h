@@ -21,9 +21,15 @@ typedef struct{
 extern short int international_flight_waiting_runway = 0;
 extern short int national_flight_waiting_runway = 0;
 
-extern short int availabel_runways = 3;
-extern short int availabel_gates = 5;
-extern short int availabel_towers = 1;
+extern short int international_flight_waiting_gate = 0;
+extern short int national_flight_waiting_gate = 0;
+
+extern short int international_flight_waiting_tower = 0;
+extern short int national_flight_waiting_tower = 0;
+
+extern short int available_runways = 3;
+extern short int available_gates = 5;
+extern short int available_towers = 1;
 
 extern pthread_mutex_t runway_mutex;
 extern pthread_mutex_t tower_mutex;

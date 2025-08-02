@@ -42,33 +42,56 @@ void request_runway(Flight *flight){
         national_flight_waiting_runway++;
     }
 
-    while(availabel_runways == 0 || (flight->type == NATIONAL && international_flight_waiting_runway > 0)){
+    while(available_runways == 0 || (flight->type == NATIONAL && international_flight_waiting_runway > 0)){
         pthread_cond_wait(&runway_cond, &runway_mutex);
     }
 
-    availabel_runways--;
+    available_runways--;
     if(flight->type == INTERNATIONAL){
         international_flight_waiting_runway--;
     } else {
         national_flight_waiting_runway--;
     }
 
-    printf("%s Flight %d took a runway! Availabel runways: %d", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, availabel_runways);
+    printf("%s flight %d took a runway! Available runways: %d", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_runways);
     pthread_mutex_unlock(&runway_mutex);
 }
 
 void release_runway(Flight *flight){
 
 }
-void request_gate(Flight *flight){
 
+void request_gate(Flight *flight){
+    pthread_mutex_lock(&gate_mutex);
+
+    if(flight->type == INTERNATIONAL){
+        international_flight_waiting_gate++;
+    } else {
+        national_flight_waiting_gate++;
+    }
+
+    while(available_gates == 0 || (flight->type == NATIONAL && international_flight_waiting_gate > 0)){
+        pthread_cond_wait(&gate_cond, &gate_mutex);
+    }
+
+    available_gates--;
+    if(flight->type == INTERNATIONAL){
+        international_flight_waiting_gate--;
+    } else {
+        national_flight_waiting_gate--;
+    }
+
+    printf("%s flight %d took a gate! Available gates: %d", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_gates);
+    pthread_mutex_unlock(&gate_mutex);
 }
+
 void release_gate(Flight *flight){
 
 }
 void request_tower(Flight *flight){
 
 }
+
 void release_tower(Flight *flight){
 
 }
