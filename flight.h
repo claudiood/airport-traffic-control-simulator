@@ -14,6 +14,7 @@ typedef enum{
 typedef struct{
     int id;
     FlightType type;
+    State state;
 } Flight;
 
 #endif

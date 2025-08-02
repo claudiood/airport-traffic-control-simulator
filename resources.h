@@ -18,11 +18,23 @@ typedef struct{
     Status status;
 } Runway;
 
-extern short int international_flight_waiting_runway;
-extern short int national_flight_waiting_runway;
-extern short int availabel_runways;
-extern short int availabel_gates;
-extern short int availabel_towers;
+extern short int international_flight_waiting_runway = 0;
+extern short int national_flight_waiting_runway = 0;
+
+extern short int availabel_runways = 3;
+extern short int availabel_gates = 5;
+extern short int availabel_towers = 1;
+
+extern pthread_mutex_t runway_mutex;
+extern pthread_mutex_t tower_mutex;
+extern pthread_mutex_t gate_mutex;
+
+extern pthread_cond_t runway_cond;
+extern pthread_cond_t tower_cond;
+extern pthread_cond_t gate_cond;
+
+void init_resources();
+void destroy_resources();
 
 void request_take_off(Flight *flight);
 void request_land(Flight *flight);
