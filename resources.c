@@ -127,5 +127,11 @@ void request_tower(Flight *flight){
 }
 
 void release_tower(Flight *flight){
+    pthread_mutex_lock(&tower_mutex);
 
+    available_towers++;
+    pthread_cond_signal(&tower_cond);
+
+    printf("%s flight %d has released the tower! Available towers: %d", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_towers);
+    pthread_mutex_unlock(&tower_mutex);
 }
