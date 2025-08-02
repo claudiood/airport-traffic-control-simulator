@@ -92,7 +92,13 @@ void request_gate(Flight *flight){
 }
 
 void release_gate(Flight *flight){
+    pthread_mutex_lock(&gate_mutex);
 
+    available_gates++;
+    pthread_cond_signal(&gate_cond);
+
+    printf("%s flight %d has released the gate. Available gates: %d", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_gates);
+    pthread_mutex_unlock(&gate_mutex);
 }
 
 void request_tower(Flight *flight){
