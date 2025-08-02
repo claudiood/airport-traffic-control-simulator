@@ -58,7 +58,13 @@ void request_runway(Flight *flight){
 }
 
 void release_runway(Flight *flight){
+    pthread_mutex_lock(&runway_mutex);
 
+    available_runways++;
+    pthread_cond_signal(&runway_cond);
+
+    printf("%s flight %d has released the runway. Available runways: %d", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_runways);
+    pthread_mutex_unlock(&runway_mutex);
 }
 
 void request_gate(Flight *flight){
@@ -88,6 +94,7 @@ void request_gate(Flight *flight){
 void release_gate(Flight *flight){
 
 }
+
 void request_tower(Flight *flight){
     pthread_mutex_lock(&tower_mutex);
 
