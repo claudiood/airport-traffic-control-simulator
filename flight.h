@@ -7,7 +7,9 @@ typedef enum{
 } FlightType;
 
 typedef enum{
+    READY,
     WAITING,
+    ARRIVING,
     COMPLETED
 } State;
 
@@ -16,5 +18,7 @@ typedef struct{
     FlightType type;
     State state;
 } Flight;
+
+void *simulate_flight(void *arg);
 
 #endif
