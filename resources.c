@@ -89,7 +89,28 @@ void release_gate(Flight *flight){
 
 }
 void request_tower(Flight *flight){
+    pthread_mutex_lock(&tower_mutex);
 
+    if(flight->type == INTERNATIONAL){
+        international_flight_waiting_tower++;
+    } else {
+        national_flight_waiting_tower++;
+    }
+
+    while(available_towers == 0 || (flight->type == NATIONAL && international_flight_waiting_tower > 0)){
+        pthread_cond_wait(&tower_cond, &tower_mutex);
+    }
+
+    available_towers--;
+    if(flight->type == INTERNATIONAL){
+        international_flight_waiting_tower--;
+    } else {
+        national_flight_waiting_tower--;
+    }
+
+    printf("%s flight %d made contact with the tower. Availabel towers: %d", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_towers);
+
+    pthread_mutex_unlock(&tower_mutex);
 }
 
 void release_tower(Flight *flight){
