@@ -3,21 +3,6 @@
 #include <pthread.h>
 #include "flight.h"
 
-typedef enum{
-    OCCUPIED,
-    FREE
-} Status;
-
-typedef struct{
-    int id;
-    Status status;
-} Gate;
-
-typedef struct{
-    int id;
-    Status status;
-} Runway;
-
 extern short int international_flight_waiting_runway;
 extern short int national_flight_waiting_runway;
 
@@ -43,13 +28,11 @@ int random_time();
 void init_resources();
 void destroy_resources();
 
-void request_take_off(Flight *flight);
-void request_land(Flight *flight);
-void request_runway(Flight *flight);
-void release_runway(Flight *flight);
-void request_gate(Flight *flight);
-void release_gate(Flight *flight);
-void request_tower(Flight *flight);
-void release_tower(Flight *flight);
+void request_runway(Flight *flight, pthread_mutex_t *runway_mutex);
+void release_runway(Flight *flight, pthread_mutex_t *runway_mutex);
+void request_gate(Flight *flight, pthread_mutex_t *gate_mutex);
+void release_gate(Flight *flight, pthread_mutex_t *gate_mutex);
+void request_tower(Flight *flight, pthread_mutex_t *tower_mutex);
+void release_tower(Flight *flight, pthread_mutex_t *tower_mutex);
 
 #endif

@@ -58,9 +58,7 @@ int random_time(){
     return time;
 }
 
-void request_runway(Flight *flight){
-    pthread_mutex_lock(&runway_mutex);
-
+void request_runway(Flight *flight, pthread_mutex_t *runway_mutex){
     if(flight->type == INTERNATIONAL){
         international_flight_waiting_runway++;
     } else {
@@ -68,7 +66,7 @@ void request_runway(Flight *flight){
     }
 
     while(available_runways == 0 || (flight->type == NATIONAL && international_flight_waiting_runway > 0)){
-        pthread_cond_wait(&runway_cond, &runway_mutex);
+        pthread_cond_wait(&runway_cond, runway_mutex);
     }
 
     available_runways--;
@@ -79,21 +77,18 @@ void request_runway(Flight *flight){
     }
 
     printf("%s flight %d took a runway! Available runways: %d\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_runways);
-    pthread_mutex_unlock(&runway_mutex);
 }
 
-void release_runway(Flight *flight){
-    pthread_mutex_lock(&runway_mutex);
+void release_runway(Flight *flight, pthread_mutex_t *runway_mutex){
 
-    available_runways++;
     pthread_cond_signal(&runway_cond);
-
+    
     printf("%s flight %d has released the runway. Available runways: %d\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_runways);
-    pthread_mutex_unlock(&runway_mutex);
+    pthread_mutex_unlock(runway_mutex);
+    available_runways++;
 }
 
-void request_gate(Flight *flight){
-    pthread_mutex_lock(&gate_mutex);
+void request_gate(Flight *flight, pthread_mutex_t *gate_mutex){
 
     if(flight->type == INTERNATIONAL){
         international_flight_waiting_gate++;
@@ -102,7 +97,7 @@ void request_gate(Flight *flight){
     }
 
     while(available_gates == 0 || (flight->type == NATIONAL && international_flight_waiting_gate > 0)){
-        pthread_cond_wait(&gate_cond, &gate_mutex);
+        pthread_cond_wait(&gate_cond, gate_mutex);
     }
 
     available_gates--;
@@ -113,21 +108,18 @@ void request_gate(Flight *flight){
     }
 
     printf("%s flight %d took a gate! Available gates: %d\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_gates);
-    pthread_mutex_unlock(&gate_mutex);
 }
 
-void release_gate(Flight *flight){
-    pthread_mutex_lock(&gate_mutex);
+void release_gate(Flight *flight, pthread_mutex_t *gate_mutex){
 
-    available_gates++;
     pthread_cond_signal(&gate_cond);
-
+    
     printf("%s flight %d has released the gate. Available gates: %d\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_gates);
-    pthread_mutex_unlock(&gate_mutex);
+    pthread_mutex_unlock(gate_mutex);
+    available_gates++;
 }
 
-void request_tower(Flight *flight){
-    pthread_mutex_lock(&tower_mutex);
+void request_tower(Flight *flight, pthread_mutex_t *tower_mutex){
 
     if(flight->type == INTERNATIONAL){
         international_flight_waiting_tower++;
@@ -136,7 +128,7 @@ void request_tower(Flight *flight){
     }
 
     while(available_tower_slots == 0 || (flight->type == NATIONAL && international_flight_waiting_tower > 0)){
-        pthread_cond_wait(&tower_cond, &tower_mutex);
+        pthread_cond_wait(&tower_cond, tower_mutex);
     }
 
     available_tower_slots--;
@@ -147,16 +139,12 @@ void request_tower(Flight *flight){
     }
 
     printf("%s flight %d made contact with the tower. Available tower slots: %d\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_tower_slots);
-
-    pthread_mutex_unlock(&tower_mutex);
 }
 
-void release_tower(Flight *flight){
-    pthread_mutex_lock(&tower_mutex);
-
-    available_tower_slots++;
+void release_tower(Flight *flight, pthread_mutex_t *tower_mutex){
     pthread_cond_signal(&tower_cond);
-
+    
     printf("%s flight %d has released the tower! Available tower slots: %d\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_tower_slots);
-    pthread_mutex_unlock(&tower_mutex);
+    pthread_mutex_unlock(tower_mutex);
+    available_tower_slots++;
 }
