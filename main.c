@@ -1,38 +1,72 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 #include "resources.h"
 
 #define True 1
-#define NUM_FLIGHTS 15
+#define DEFAULT_SIMULATION_TIME 120
 
-int main(){
-    printf("Starting simulation!\n");
+int main(int argc, char *argv[]){
+
+    short int simulation_time = DEFAULT_SIMULATION_TIME;
+    short int provided_time = DEFAULT_SIMULATION_TIME/60;
+
+    if(argc > 1){
+        provided_time = atoi(argv[1]);
+        simulation_time = provided_time * 60;
+        if(provided_time <= 0){
+            provided_time = DEFAULT_SIMULATION_TIME/60;
+            simulation_time = DEFAULT_SIMULATION_TIME;
+            printf("Invalid simulation time provided. Default simulation time of %d minutes running.\n", provided_time);
+        }
+    }
     
-    pthread_t flight_threads[NUM_FLIGHTS];
- 
-    Flight *flights[NUM_FLIGHTS];
+    printf("Starting simulation of %d minutes!\n", atoi(argv[1]));
+
+    srand(time(NULL));
+
+    time_t start_time = time(NULL);
+    time_t current_time;
+
+    short int num_threads = 0;
+
+    pthread_t *flight_threads = NULL;
+    Flight **flights = NULL;
+
     init_resources();
 
-    for(int i = 0; i < NUM_FLIGHTS; i++){
-        flights[i] = (Flight *)malloc(sizeof(Flight));
-        if(flights[i] == NULL){
-            printf("Error!");
-            exit(EXIT_FAILURE);
+    while(True){
+        current_time = time(NULL);
+
+        if(current_time - start_time > simulation_time){
+            break;
         }
 
-        flights[i]->id = i + 1;
-        flights[i]->type = (i%2 == 0 ? INTERNATIONAL : NATIONAL);
+        flights = (Flight **)realloc(flights, (num_threads + 1)*sizeof(Flight*));
+        flight_threads = (pthread_t*)realloc(flight_threads, (num_threads + 1) * sizeof(pthread_t));
 
-        if(pthread_create(&flight_threads[i], NULL, simulate_flight, (void *)flights[i]) != 0){
-            printf("Error");
-            exit(EXIT_FAILURE);
-        }
+        flights[num_threads] = (Flight *)malloc(sizeof(Flight));
+
+        flights[num_threads]->id = num_threads + 1;
+        flights[num_threads]->type = (num_threads % 2 == 0 ? INTERNATIONAL : NATIONAL);
+
+        pthread_create(&flight_threads[num_threads], NULL, simulate_flight, (void *)flights[num_threads]);
+
+        num_threads++;
+
+        sleep(1);
     }
 
-    for(int i = 0; i < NUM_FLIGHTS; i++){
+    printf("End of simulation! Waiting for the last flights!\n");
+
+    for(int i = 0; i < num_threads; i++){
         pthread_join(flight_threads[i], NULL);
     }
+
+    free(flights);
+    free(flight_threads);
 
     destroy_resources();
 

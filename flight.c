@@ -18,13 +18,9 @@ void *simulate_flight(void *arg){
             if(pthread_mutex_trylock(&runway_mutex) == 0){
                 if(pthread_mutex_trylock(&tower_mutex) == 0){
                         request_runway(flight, &runway_mutex);
-                        sleep(random_time());
-                        
                         request_tower(flight, &tower_mutex);
-                        sleep(random_time());
                         
                         release_runway(flight, &runway_mutex);
-                        sleep(random_time());
                         release_tower(flight, &tower_mutex);
                         
                         pthread_mutex_unlock(&runway_mutex);
@@ -33,6 +29,7 @@ void *simulate_flight(void *arg){
                         break;
                 } else {
                     pthread_mutex_unlock(&runway_mutex);
+                    sleep(1);
                 }
             } else {
                 sleep(1);
@@ -51,9 +48,9 @@ void *simulate_flight(void *arg){
                     request_tower(flight, &tower_mutex);
                     sleep(random_time());
 
-                    release_gate(flight, &gate_mutex);
-                    sleep(random_time());
                     release_tower(flight, &tower_mutex);
+                    sleep(1);
+                    release_gate(flight, &gate_mutex);
 
                     pthread_mutex_unlock(&gate_mutex);
                     pthread_mutex_unlock(&tower_mutex);
@@ -61,9 +58,9 @@ void *simulate_flight(void *arg){
                     break;
                 } else {
                     pthread_mutex_unlock(&gate_mutex);
+                    sleep(1);
                 }
             } else {
-                pthread_mutex_unlock(&gate_mutex);
                 sleep(1);
             }
         }
@@ -77,19 +74,13 @@ void *simulate_flight(void *arg){
                     if(pthread_mutex_trylock(&tower_mutex) == 0){
 
                         request_gate(flight, &gate_mutex);
-                        sleep(random_time());
-
                         request_runway(flight, &runway_mutex);
-                        sleep(random_time());
-                        
                         request_tower(flight, &tower_mutex);
                         sleep(random_time());
 
-                        release_gate(flight, &gate_mutex);
-                        sleep(random_time());
-                        release_runway(flight, &runway_mutex);
-                        sleep(random_time());
                         release_tower(flight, &tower_mutex);
+                        release_gate(flight, &gate_mutex);
+                        release_runway(flight, &runway_mutex);
                         
                         pthread_mutex_unlock(&gate_mutex);
                         pthread_mutex_unlock(&runway_mutex);
@@ -99,11 +90,14 @@ void *simulate_flight(void *arg){
                     } else {
                         pthread_mutex_unlock(&gate_mutex);
                         pthread_mutex_unlock(&runway_mutex);
+                        sleep(1);
                     }
                 } else {
                     pthread_mutex_unlock(&gate_mutex);
                     sleep(1);
                 }
+            } else {
+                sleep(1);
             }
         }
 
@@ -117,18 +111,15 @@ void *simulate_flight(void *arg){
             if(pthread_mutex_trylock(&tower_mutex) == 0){
                 if(pthread_mutex_trylock(&runway_mutex) == 0){
                     request_tower(flight, &tower_mutex);
-                    sleep(random_time());
-
                     request_runway(flight, &runway_mutex);
-                    sleep(random_time());
 
                     release_tower(flight, &tower_mutex);
-                    sleep(random_time());
                     release_runway(flight, &runway_mutex);
 
                     break;
                 } else {
                     pthread_mutex_unlock(&tower_mutex);
+                    sleep(1);
                 }
             } else {
                 sleep(1);
@@ -141,13 +132,10 @@ void *simulate_flight(void *arg){
             if(pthread_mutex_trylock(&tower_mutex) == 0){
                 if(pthread_mutex_trylock(&gate_mutex) == 0){
                     request_tower(flight, &tower_mutex);
-                    sleep(random_time());
-
                     request_gate(flight, &gate_mutex);
-                    sleep(random_time());
 
                     release_tower(flight, &tower_mutex);
-                    sleep(random_time());
+                    sleep(1);
                     release_gate(flight, &gate_mutex);
 
                     pthread_mutex_unlock(&tower_mutex);
@@ -156,6 +144,7 @@ void *simulate_flight(void *arg){
                     break;
                 } else {
                     pthread_mutex_unlock(&tower_mutex);
+                    sleep(1);
                 }
             } else {
                 sleep(1);
@@ -169,20 +158,13 @@ void *simulate_flight(void *arg){
             if(pthread_mutex_trylock(&tower_mutex) == 0){
                 if(pthread_mutex_trylock(&gate_mutex) == 0){
                     if(pthread_mutex_trylock(&runway_mutex) == 0){
-                        
                         request_tower(flight, &tower_mutex);
-                        sleep(random_time());
-    
                         request_gate(flight, &gate_mutex);
-                        sleep(random_time());
-
                         request_runway(flight, &runway_mutex);
-                        sleep(random_time());
     
                         release_tower(flight, &tower_mutex);
-                        sleep(random_time());
+                        sleep(1);
                         release_gate(flight, &gate_mutex);
-                        sleep(random_time());
                         release_runway(flight, &runway_mutex);
     
                         pthread_mutex_unlock(&tower_mutex);
@@ -193,9 +175,11 @@ void *simulate_flight(void *arg){
                     } else {
                         pthread_mutex_unlock(&tower_mutex);
                         pthread_mutex_unlock(&gate_mutex);
+                        sleep(1);
                     }
                 } else {
                     pthread_mutex_unlock(&tower_mutex);
+                    sleep(1);
                 }
             } else {
                 sleep(1);
@@ -205,6 +189,5 @@ void *simulate_flight(void *arg){
         printf("%s flight %d took off!\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
     }
 
-    free(flight);
     return NULL;
 }
