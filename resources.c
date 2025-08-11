@@ -51,21 +51,15 @@ void destroy_resources(){
     printf("Resources destroyed.\n");
 }
 
-int random_time(){
-    srand(time(NULL));
-
-    int time = (rand() % 4) + 1;
-    return time;
-}
-
 void request_runway(Flight *flight, pthread_mutex_t *runway_mutex){
+
     if(flight->type == INTERNATIONAL){
         international_flight_waiting_runway++;
     } else {
         national_flight_waiting_runway++;
     }
 
-    while(available_runways == 0 || (flight->type == NATIONAL && international_flight_waiting_runway > 0)){
+    while(available_runways == 0 || (flight->type == NATIONAL && flight->status == NORMAL && international_flight_waiting_runway > 0)){
         pthread_cond_wait(&runway_cond, runway_mutex);
     }
 
@@ -96,7 +90,7 @@ void request_gate(Flight *flight, pthread_mutex_t *gate_mutex){
         national_flight_waiting_gate++;
     }
 
-    while(available_gates == 0 || (flight->type == NATIONAL && international_flight_waiting_gate > 0)){
+    while(available_gates == 0 || (flight->type == NATIONAL && flight->status == NORMAL && international_flight_waiting_gate > 0)){
         pthread_cond_wait(&gate_cond, gate_mutex);
     }
 
@@ -127,7 +121,7 @@ void request_tower(Flight *flight, pthread_mutex_t *tower_mutex){
         national_flight_waiting_tower++;
     }
 
-    while(available_tower_slots == 0 || (flight->type == NATIONAL && international_flight_waiting_tower > 0)){
+    while(available_tower_slots == 0 || (flight->type == NATIONAL && flight->status == NORMAL && international_flight_waiting_tower > 0)){
         pthread_cond_wait(&tower_cond, tower_mutex);
     }
 

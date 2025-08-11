@@ -5,9 +5,14 @@
 #include <unistd.h>
 
 #define True 1
+#define CRITICAL_TIME 60
+#define CRASH_TIME 90
 
 void *simulate_flight(void *arg){
     Flight *flight = (Flight*)arg;
+
+    time_t current_time;
+    double elapsed_time;
 
     if(flight->type == INTERNATIONAL){
 
@@ -18,6 +23,7 @@ void *simulate_flight(void *arg){
             if(pthread_mutex_trylock(&runway_mutex) == 0){
                 if(pthread_mutex_trylock(&tower_mutex) == 0){
                         request_runway(flight, &runway_mutex);
+                        sleep(1);
                         request_tower(flight, &tower_mutex);
                         
                         release_runway(flight, &runway_mutex);
@@ -43,10 +49,9 @@ void *simulate_flight(void *arg){
             if(pthread_mutex_trylock(&gate_mutex) == 0){
                 if(pthread_mutex_trylock(&tower_mutex) == 0){
                     request_gate(flight, &gate_mutex);
-                    sleep(random_time());
-
+                    sleep(1);
                     request_tower(flight, &tower_mutex);
-                    sleep(random_time());
+                    sleep(1);
 
                     release_tower(flight, &tower_mutex);
                     sleep(1);
@@ -74,9 +79,10 @@ void *simulate_flight(void *arg){
                     if(pthread_mutex_trylock(&tower_mutex) == 0){
 
                         request_gate(flight, &gate_mutex);
+                        sleep(1);
                         request_runway(flight, &runway_mutex);
                         request_tower(flight, &tower_mutex);
-                        sleep(random_time());
+                        sleep(1);
 
                         release_tower(flight, &tower_mutex);
                         release_gate(flight, &gate_mutex);
@@ -106,8 +112,22 @@ void *simulate_flight(void *arg){
 
         printf("%s flight %d will attempt to land!\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
 
+        
         //landing
         while(True){
+            current_time = time(NULL);
+            elapsed_time = difftime(current_time, flight->created_At);
+
+            if(elapsed_time > CRITICAL_TIME && flight->status == NORMAL){
+                flight->status = CRITICAL;
+                printf("%s flight %d is in a critical situation!\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
+            }
+
+            if(elapsed_time > CRASH_TIME){
+                printf("%s flight %d crashed because of the waiting time.\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
+                pthread_exit((void*)1);
+            }
+
             if(pthread_mutex_trylock(&tower_mutex) == 0){
                 if(pthread_mutex_trylock(&runway_mutex) == 0){
                     request_tower(flight, &tower_mutex);

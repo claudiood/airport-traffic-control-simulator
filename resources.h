@@ -24,7 +24,6 @@ extern pthread_cond_t runway_cond;
 extern pthread_cond_t tower_cond;
 extern pthread_cond_t gate_cond;
 
-int random_time();
 void init_resources();
 void destroy_resources();
 

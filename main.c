@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
     while(True){
         current_time = time(NULL);
 
-        if(current_time - start_time > simulation_time){
+        if(difftime(current_time, start_time) > simulation_time){
             break;
         }
 
@@ -50,7 +50,9 @@ int main(int argc, char *argv[]){
         flights[num_threads] = (Flight *)malloc(sizeof(Flight));
 
         flights[num_threads]->id = num_threads + 1;
-        flights[num_threads]->type = (num_threads % 2 == 0 ? INTERNATIONAL : NATIONAL);
+        flights[num_threads]->type = (rand() % 2 == 0 ? INTERNATIONAL : NATIONAL);
+        flights[num_threads]->created_At = time(NULL);
+        flights[num_threads]->status = NORMAL;
 
         pthread_create(&flight_threads[num_threads], NULL, simulate_flight, (void *)flights[num_threads]);
 

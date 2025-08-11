@@ -10,9 +10,16 @@ typedef enum{
     INTERNATIONAL
 } FlightType;
 
+typedef enum{
+    NORMAL,
+    CRITICAL
+} Status;
+
 typedef struct{
     int id;
     FlightType type;
+    time_t created_At;
+    Status status;
 } Flight;
 
 void *simulate_flight(void *arg);
