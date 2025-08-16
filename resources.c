@@ -4,6 +4,10 @@
 #include "flight.h"
 #include "resources.h"
 
+short int international_sucessess = 0;
+short int national_sucessess = 0;
+short int national_crashes = 0;
+
 short int international_flight_waiting_runway = 0;
 short int national_flight_waiting_runway = 0;
 

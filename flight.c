@@ -127,6 +127,9 @@ void *simulate_flight(void *arg){
 
             if(elapsed_time > CRASH_TIME){
                 printf("%s flight %d crashed because of the waiting time.\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
+                pthread_mutex_lock(&summary);
+                national_crashes++;
+                pthread_mutex_unlock(&summary);
                 pthread_exit((void*)1);
             }
 
@@ -134,9 +137,6 @@ void *simulate_flight(void *arg){
                 sleep(1);
                 continue;
             }
-
-            pthread_mutex_unlock(&runway_mutex);
-            pthread_mutex_unlock(&tower_mutex);
 
             if(sem_trywait(&tower_sem) == 0){
                 if(sem_trywait(&runway_sem) == 0){
@@ -167,9 +167,6 @@ void *simulate_flight(void *arg){
                 sleep(1);
                 continue;
             }
-
-            pthread_mutex_unlock(&tower_mutex);
-            pthread_mutex_unlock(&gate_mutex);
 
             if(sem_trywait(&tower_sem) == 0){
                 if(sem_trywait(&gate_sem) == 0){
@@ -204,10 +201,6 @@ void *simulate_flight(void *arg){
                 continue;
             }
 
-            pthread_mutex_unlock(&tower_mutex);
-            pthread_mutex_unlock(&gate_mutex);
-            pthread_mutex_unlock(&runway_mutex);
-
             if(sem_trywait(&tower_sem) == 0){
                 if(sem_trywait(&gate_sem) == 0){
                     if(sem_trywait(&runway_sem) == 0){
@@ -238,5 +231,13 @@ void *simulate_flight(void *arg){
         printf("%s flight %d took off!\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
     }
 
+    pthread_mutex_lock(&summary);
+    if(flight->type == INTERNATIONAL){
+        international_sucessess++;
+    } else {
+        national_sucessess++;
+    }
+    pthread_mutex_unlock(&summary);
+    
     return NULL;
 }

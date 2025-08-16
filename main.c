@@ -75,5 +75,6 @@ int main(int argc, char *argv[]){
 
     printf("Finishing simulation!\n");
 
+    printf("------------------------SUMMARY--------------------------\nINTERNATIONAL FLIGHTS SUCESSESS: %d\nNATIONAL FLIGHTS SUCESSESS: %d\nNATIONAL FLIGHTS CRASHES: %d\n---------------------------------------------------------\n", international_sucessess, national_sucessess, national_crashes);
     exit(EXIT_SUCCESS);
 }

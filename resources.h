@@ -4,6 +4,10 @@
 #include <semaphore.h>
 #include "flight.h"
 
+extern short int international_sucessess;
+extern short int national_sucessess;
+extern short int national_crashes;
+
 extern short int international_flight_waiting_runway;
 extern short int national_flight_waiting_runway;
 
