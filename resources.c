@@ -17,6 +17,8 @@ short int available_runways = 3;
 short int available_gates = 5;
 short int available_tower_slots = 2;
 
+pthread_mutex_t summary;
+
 pthread_mutex_t runway_mutex;
 pthread_mutex_t tower_mutex;
 pthread_mutex_t gate_mutex;
@@ -58,7 +60,7 @@ void destroy_resources(){
     printf("Resources destroyed.\n");
 }
 
-void request_runway(Flight *flight){
+void waiting_runway_queue(Flight *flight){
     pthread_mutex_lock(&runway_mutex);
     if(flight->type == INTERNATIONAL){
         international_flight_waiting_runway++;
@@ -66,9 +68,29 @@ void request_runway(Flight *flight){
         national_flight_waiting_runway++;
     }
     pthread_mutex_unlock(&runway_mutex);
+}
 
-    printf("NACIONAL: %d ------- INTERNACIONAL: %d\n", national_flight_waiting_runway, international_flight_waiting_runway);
+void waiting_tower_queue(Flight *flight){
+    pthread_mutex_lock(&tower_mutex);
+    if(flight->type == INTERNATIONAL){
+        international_flight_waiting_tower++;
+    } else {
+        national_flight_waiting_tower++;
+    }
+    pthread_mutex_unlock(&tower_mutex);
+}
 
+void waiting_gate_queue(Flight *flight){
+    pthread_mutex_lock(&gate_mutex);
+    if(flight->type == INTERNATIONAL){
+        international_flight_waiting_gate++;
+    } else {
+        national_flight_waiting_gate++;
+    }
+    pthread_mutex_unlock(&gate_mutex);
+}
+
+void request_runway(Flight *flight){
     pthread_mutex_lock(&runway_mutex);
     available_runways--;
 
@@ -80,11 +102,9 @@ void request_runway(Flight *flight){
         national_flight_waiting_runway--;
     }
     pthread_mutex_unlock(&runway_mutex);
-
 }
 
 void release_runway(Flight *flight){
-    
     sem_post(&runway_sem);
     
     pthread_mutex_lock(&runway_mutex);
@@ -95,14 +115,6 @@ void release_runway(Flight *flight){
 }
 
 void request_gate(Flight *flight){
-    pthread_mutex_lock(&gate_mutex);
-    if(flight->type == INTERNATIONAL){
-        international_flight_waiting_gate++;
-    } else {
-        national_flight_waiting_gate++;
-    }
-    pthread_mutex_unlock(&gate_mutex);
-
     pthread_mutex_lock(&gate_mutex);
     available_gates--;
 
@@ -118,7 +130,6 @@ void request_gate(Flight *flight){
 }
 
 void release_gate(Flight *flight){
-    
     sem_post(&gate_sem);
     
     pthread_mutex_lock(&gate_mutex);
@@ -129,14 +140,6 @@ void release_gate(Flight *flight){
 }
 
 void request_tower(Flight *flight){
-    pthread_mutex_lock(&tower_mutex);
-    if(flight->type == INTERNATIONAL){
-        international_flight_waiting_tower++;
-    } else {
-        national_flight_waiting_tower++;
-    }
-    pthread_mutex_unlock(&tower_mutex);
-
     pthread_mutex_lock(&tower_mutex);
     available_tower_slots--;
     
@@ -151,7 +154,6 @@ void request_tower(Flight *flight){
 }
 
 void release_tower(Flight *flight){
-    
     sem_post(&tower_sem);
     
     pthread_mutex_lock(&tower_mutex);

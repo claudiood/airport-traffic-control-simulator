@@ -11,12 +11,15 @@
 void *simulate_flight(void *arg){
     Flight *flight = (Flight*)arg;
 
-    /*time_t current_time;
-    double elapsed_time;*/
+    time_t current_time;
+    double elapsed_time;
 
     if(flight->type == INTERNATIONAL){
 
         printf("%s flight %d will attempt to land!\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
+
+        waiting_runway_queue(flight);
+        waiting_tower_queue(flight);
 
         //landing
         while(True){
@@ -41,6 +44,9 @@ void *simulate_flight(void *arg){
         
         printf("%s flight %d has landed!\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
         
+        waiting_gate_queue(flight);
+        waiting_tower_queue(flight);
+
         //landing gate
         while(True){
             if(sem_trywait(&gate_sem) == 0){
@@ -66,6 +72,10 @@ void *simulate_flight(void *arg){
 
         printf("%s flight %d will take-off!\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
 
+        waiting_gate_queue(flight);
+        waiting_runway_queue(flight);
+        waiting_tower_queue(flight);
+
         //taking off
         while(True){
             if(sem_trywait(&gate_sem) == 0){
@@ -89,7 +99,7 @@ void *simulate_flight(void *arg){
                         sleep(1);
                     }
                 } else {
-                    pthread_mutex_unlock(&gate_mutex);
+                    sem_post(&gate_sem);
                     sleep(1);
                 }
             } else {
@@ -102,10 +112,12 @@ void *simulate_flight(void *arg){
 
         printf("%s flight %d will attempt to land!\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
 
+        waiting_tower_queue(flight);
+        waiting_runway_queue(flight);
         
         //landing
         while(True){
-            /*current_time = time(NULL);
+            current_time = time(NULL);
             elapsed_time = difftime(current_time, flight->created_At);
 
             if(elapsed_time > CRITICAL_TIME && flight->status == NORMAL){
@@ -116,7 +128,15 @@ void *simulate_flight(void *arg){
             if(elapsed_time > CRASH_TIME){
                 printf("%s flight %d crashed because of the waiting time.\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
                 pthread_exit((void*)1);
-            }*/
+            }
+
+            if(flight->status == NORMAL && international_flight_waiting_runway > 0 && international_flight_waiting_tower > 0){
+                sleep(1);
+                continue;
+            }
+
+            pthread_mutex_unlock(&runway_mutex);
+            pthread_mutex_unlock(&tower_mutex);
 
             if(sem_trywait(&tower_sem) == 0){
                 if(sem_trywait(&runway_sem) == 0){
@@ -138,7 +158,19 @@ void *simulate_flight(void *arg){
 
         printf("%s flight %d has landed!\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
 
+        waiting_tower_queue(flight);
+        waiting_gate_queue(flight);
+
         while(True){
+
+            if(flight->status == NORMAL && international_flight_waiting_tower > 0 && international_flight_waiting_gate > 0){
+                sleep(1);
+                continue;
+            }
+
+            pthread_mutex_unlock(&tower_mutex);
+            pthread_mutex_unlock(&gate_mutex);
+
             if(sem_trywait(&tower_sem) == 0){
                 if(sem_trywait(&gate_sem) == 0){
                     request_tower(flight);
@@ -160,8 +192,22 @@ void *simulate_flight(void *arg){
 
         printf("%s flight %d will take-off!\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id);
 
+        waiting_tower_queue(flight);
+        waiting_runway_queue(flight);
+        waiting_gate_queue(flight);
+
         //taking off
         while(True){
+
+            if(flight->status == NORMAL && international_flight_waiting_tower > 0  && international_flight_waiting_gate > 0 && international_flight_waiting_runway > 0){
+                sleep(1);
+                continue;
+            }
+
+            pthread_mutex_unlock(&tower_mutex);
+            pthread_mutex_unlock(&gate_mutex);
+            pthread_mutex_unlock(&runway_mutex);
+
             if(sem_trywait(&tower_sem) == 0){
                 if(sem_trywait(&gate_sem) == 0){
                     if(sem_trywait(&runway_sem) == 0){

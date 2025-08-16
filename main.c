@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
         }
     }
     
-    printf("Starting simulation of %d minutes!\n", atoi(argv[1]));
+    printf("Starting simulation of %d minutes!\n", provided_time);
 
     srand(time(NULL));
 
@@ -65,6 +65,7 @@ int main(int argc, char *argv[]){
 
     for(int i = 0; i < num_threads; i++){
         pthread_join(flight_threads[i], NULL);
+        free(flights[i]);
     }
 
     free(flights);

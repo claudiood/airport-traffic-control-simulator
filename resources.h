@@ -17,13 +17,11 @@ extern short int available_runways;
 extern short int available_gates;
 extern short int available_tower_slots;
 
+extern pthread_mutex_t summary;
+
 extern pthread_mutex_t runway_mutex;
 extern pthread_mutex_t tower_mutex;
 extern pthread_mutex_t gate_mutex;
-
-extern pthread_cond_t runway_cond;
-extern pthread_cond_t tower_cond;
-extern pthread_cond_t gate_cond;
 
 extern sem_t runway_sem;
 extern sem_t tower_sem;
@@ -31,6 +29,10 @@ extern sem_t gate_sem;
 
 void init_resources();
 void destroy_resources();
+
+void waiting_runway_queue(Flight *flight);
+void waiting_tower_queue(Flight *flight);
+void waiting_gate_queue(Flight *flight);
 
 void request_runway(Flight *flight);
 void release_runway(Flight *flight);
