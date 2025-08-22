@@ -207,6 +207,7 @@ void *simulate_flight(void *arg){
                         request_tower(flight);
                         request_gate(flight);
                         request_runway(flight);
+                        sleep(1);
     
                         release_tower(flight);
                         sleep(1);

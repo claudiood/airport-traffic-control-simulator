@@ -27,10 +27,6 @@ pthread_mutex_t runway_mutex;
 pthread_mutex_t tower_mutex;
 pthread_mutex_t gate_mutex;
 
-pthread_cond_t runway_cond;
-pthread_cond_t tower_cond;
-pthread_cond_t gate_cond;
-
 sem_t runway_sem;
 sem_t tower_sem;
 sem_t gate_sem;
@@ -40,10 +36,6 @@ void init_resources(){
     pthread_mutex_init(&runway_mutex, NULL);
     pthread_mutex_init(&tower_mutex, NULL);
     pthread_mutex_init(&gate_mutex, NULL);
-
-    pthread_cond_init(&runway_cond, NULL);
-    pthread_cond_init(&tower_cond, NULL);
-    pthread_cond_init(&gate_cond, NULL);
 
     sem_init(&runway_sem, 0, 3);
     sem_init(&tower_sem, 0, 2);
@@ -57,10 +49,10 @@ void destroy_resources(){
     pthread_mutex_destroy(&tower_mutex);
     pthread_mutex_destroy(&gate_mutex);
 
-    pthread_cond_destroy(&runway_cond);
-    pthread_cond_destroy(&tower_cond);
-    pthread_cond_destroy(&gate_cond);
-
+    sem_destroy(&runway_sem);
+    sem_destroy(&tower_sem);
+    sem_destroy(&gate_sem);
+    
     printf("Resources destroyed.\n");
 }
 
