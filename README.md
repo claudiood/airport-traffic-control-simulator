@@ -69,13 +69,13 @@ The main source of **deadlocks** is the difference in the **resource allocation 
    ```
 2. Run the simulation by specifying the time in minutes that the system should generate new threads (flights):
    ```bash
-   ./main {time in minutes}
+   ./main {time in minutes} {number of runways} {number of gates} {number of tower slots}
    ```
    Exemple:
    ```bash
-   ./main 3
+   ./main 5 3 5 2
    ```
-   This will make the system generate flights for 3 minutes.
+   This will make the system generate flights for 5 minutes, with 3 runways, 5 gates and 2 tower slots.
 3. After the flight generation ends, the application keeps running until all threads (airplanes) finish their operations.
 
 ## Notes
