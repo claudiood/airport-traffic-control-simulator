@@ -75,7 +75,7 @@ The main source of **deadlocks** is the difference in the **resource allocation 
    ```bash
    ./main 5 3 5 2
    ```
-   This will make the system generate flights for 5 minutes, with 3 runways, 5 gates and 2 tower slots.
+   This will make the system generate flights for 5 minutes and the airport will have 3 runways, 5 gates and 2 tower slots.
 3. After the flight generation ends, the application keeps running until all threads (airplanes) finish their operations.
 
 ## Notes
