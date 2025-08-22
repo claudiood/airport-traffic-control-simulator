@@ -17,9 +17,9 @@ short int national_flight_waiting_gate = 0;
 short int international_flight_waiting_tower = 0;
 short int national_flight_waiting_tower = 0;
 
-short int available_runways = 3;
-short int available_gates = 5;
-short int available_tower_slots = 2;
+short int available_runways;
+short int available_gates;
+short int available_tower_slots;
 
 pthread_mutex_t summary;
 
@@ -37,9 +37,9 @@ void init_resources(){
     pthread_mutex_init(&tower_mutex, NULL);
     pthread_mutex_init(&gate_mutex, NULL);
 
-    sem_init(&runway_sem, 0, 3);
-    sem_init(&tower_sem, 0, 2);
-    sem_init(&gate_sem, 0, 5);
+    sem_init(&runway_sem, 0, available_runways);
+    sem_init(&gate_sem, 0, available_gates);
+    sem_init(&tower_sem, 0, available_tower_slots);
 
     printf("Resources started.\n");
 }
@@ -101,13 +101,13 @@ void request_runway(Flight *flight){
 }
 
 void release_runway(Flight *flight){
-    sem_post(&runway_sem);
-    
     pthread_mutex_lock(&runway_mutex);
     available_runways++;
-
+    
     printf("%s flight %d has released the runway. Available runways: %d\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_runways);
     pthread_mutex_unlock(&runway_mutex);
+
+    sem_post(&runway_sem);
 }
 
 void request_gate(Flight *flight){
@@ -122,17 +122,16 @@ void request_gate(Flight *flight){
         national_flight_waiting_gate--;
     }
     pthread_mutex_unlock(&gate_mutex);
-
 }
 
 void release_gate(Flight *flight){
-    sem_post(&gate_sem);
-    
     pthread_mutex_lock(&gate_mutex);
     available_gates++;
-
+    
     printf("%s flight %d has released the gate. Available gates: %d\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_gates);
     pthread_mutex_unlock(&gate_mutex);
+    
+    sem_post(&gate_sem);
 }
 
 void request_tower(Flight *flight){
@@ -150,11 +149,11 @@ void request_tower(Flight *flight){
 }
 
 void release_tower(Flight *flight){
-    sem_post(&tower_sem);
-    
     pthread_mutex_lock(&tower_mutex);
     available_tower_slots++;
-
+    
     printf("%s flight %d has released the tower! Available tower slots: %d\n", (flight->type == INTERNATIONAL ? "International" : "National"), flight->id, available_tower_slots);
     pthread_mutex_unlock(&tower_mutex);
+
+    sem_post(&tower_sem);
 }

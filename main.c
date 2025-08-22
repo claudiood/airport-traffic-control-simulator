@@ -7,6 +7,9 @@
 
 #define True 1
 #define DEFAULT_SIMULATION_TIME 120
+#define DEFAULT_RUNWAYS 3
+#define DEFAULT_GATES 5
+#define DEFAULT_TOWER_SLOTS 2
 
 int main(int argc, char *argv[]){
 
@@ -16,11 +19,25 @@ int main(int argc, char *argv[]){
     if(argc > 1){
         provided_time = atoi(argv[1]);
         simulation_time = provided_time * 60;
+
+        available_runways = atoi(argv[2]);
+        available_gates = atoi(argv[3]);
+        available_tower_slots = atoi(argv[4]);
+
+        if(available_runways <= 0 || available_gates <=0 || available_tower_slots <= 0){
+            available_runways = DEFAULT_RUNWAYS;
+            available_gates = DEFAULT_GATES;
+            available_tower_slots = DEFAULT_TOWER_SLOTS;
+
+            printf("Invalid quantity of resources. Each resource must have at least 1 quantity. Default simulation resources of %d runways, %d gates and %d towers slots.", available_runways, available_gates, available_tower_slots);
+        }
         if(provided_time <= 0){
             provided_time = DEFAULT_SIMULATION_TIME/60;
             simulation_time = DEFAULT_SIMULATION_TIME;
             printf("Invalid simulation time provided. Default simulation time of %d minutes running.\n", provided_time);
         }
+
+
     }
     
     printf("Starting simulation of %d minutes!\n", provided_time);
