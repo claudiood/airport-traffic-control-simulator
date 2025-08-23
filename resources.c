@@ -73,6 +73,7 @@ void validate_resources(int argc, char *argv[]){
             printf("Invalid simulation time provided. Default simulation time of %d minutes running.\n", provided_time);
         }
     }
+
     if(argc == 5){
         provided_time = atoi(argv[1]);
         simulation_time = provided_time * 60;
@@ -89,6 +90,7 @@ void validate_resources(int argc, char *argv[]){
             printf("Invalid quantity of resources. Each resource must have at least 1 quantity. Default simulation resources of %d runways, %d gates and %d towers slots.\n", available_runways, available_gates, available_tower_slots);
         }
     }
+
     if((argc > 2 && argc < 5) || argc > 5){
         provided_time = atoi(argv[1]);
         simulation_time = provided_time * 60;
@@ -99,6 +101,17 @@ void validate_resources(int argc, char *argv[]){
 
         printf("Invalid quantity of resources. Each resource must have at least 1 quantity. Default simulation resources of %d runways, %d gates and %d towers slots.\n", available_runways, available_gates, available_tower_slots);
     }
+}
+
+void free_threads(pthread_t *flight_threads, Flight **flights){
+    
+    for(int i = 0; i < num_threads; i++){
+        pthread_join(flight_threads[i], NULL);
+        free(flights[i]);
+    }
+
+    free(flights);
+    free(flight_threads);
 }
 
 void waiting_runway_queue(Flight *flight){

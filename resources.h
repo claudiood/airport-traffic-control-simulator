@@ -45,6 +45,7 @@ extern sem_t gate_sem;
 void init_resources();
 void destroy_resources();
 void validate_resources(int argc, char *argv[]);
+void free_threads(pthread_t *flight_threads, Flight **flights);
 
 void waiting_runway_queue(Flight *flight);
 void waiting_tower_queue(Flight *flight);

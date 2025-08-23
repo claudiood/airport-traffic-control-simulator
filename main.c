@@ -7,12 +7,6 @@
 
 int main(int argc, char *argv[]){
 
-    /*int *args = (int*)malloc((argc - 1) * sizeof(int));
-
-    for(int i = 1; i <= argc - 1; i++){
-        args[i] = atoi(argv[i]);
-    }*/
-
     validate_resources(argc, argv);
     
     printf("Starting simulation of %d minutes!\n", provided_time);
@@ -54,18 +48,15 @@ int main(int argc, char *argv[]){
 
     printf("End of simulation! Waiting for the last flights!\n");
 
-    for(int i = 0; i < num_threads; i++){
-        pthread_join(flight_threads[i], NULL);
-        free(flights[i]);
-    }
-
-    free(flights);
-    free(flight_threads);
-
+    free_threads(flight_threads, flights);
     destroy_resources();
 
     printf("Finishing simulation!\n");
 
-    printf("------------------------SUMMARY--------------------------\nINTERNATIONAL FLIGHTS SUCESSESS: %d\nNATIONAL FLIGHTS SUCESSESS: %d\nNATIONAL FLIGHTS CRASHES: %d\n---------------------------------------------------------\n", international_sucessess, national_sucessess, national_crashes);
+    printf("------------------------SUMMARY--------------------------\n");
+    printf("INTERNATIONAL FLIGHTS SUCESSESS: %d\n", international_sucessess);
+    printf("NATIONAL FLIGHTS SUCESSESS: %d\n", national_sucessess);
+    printf("NATIONAL FLIGHTS CRASHES: %d\n", national_crashes);
+    printf("---------------------------------------------------------\n");
     exit(EXIT_SUCCESS);
 }
