@@ -5,49 +5,23 @@
 #include <unistd.h>
 #include "resources.h"
 
-#define True 1
-#define DEFAULT_SIMULATION_TIME 120
-#define DEFAULT_RUNWAYS 3
-#define DEFAULT_GATES 5
-#define DEFAULT_TOWER_SLOTS 2
-
 int main(int argc, char *argv[]){
 
-    short int simulation_time = DEFAULT_SIMULATION_TIME;
-    short int provided_time = DEFAULT_SIMULATION_TIME/60;
+    /*int *args = (int*)malloc((argc - 1) * sizeof(int));
 
-    if(argc > 1){
-        provided_time = atoi(argv[1]);
-        simulation_time = provided_time * 60;
+    for(int i = 1; i <= argc - 1; i++){
+        args[i] = atoi(argv[i]);
+    }*/
 
-        available_runways = atoi(argv[2]);
-        available_gates = atoi(argv[3]);
-        available_tower_slots = atoi(argv[4]);
-
-        if(available_runways <= 0 || available_gates <=0 || available_tower_slots <= 0){
-            available_runways = DEFAULT_RUNWAYS;
-            available_gates = DEFAULT_GATES;
-            available_tower_slots = DEFAULT_TOWER_SLOTS;
-
-            printf("Invalid quantity of resources. Each resource must have at least 1 quantity. Default simulation resources of %d runways, %d gates and %d towers slots.", available_runways, available_gates, available_tower_slots);
-        }
-        if(provided_time <= 0){
-            provided_time = DEFAULT_SIMULATION_TIME/60;
-            simulation_time = DEFAULT_SIMULATION_TIME;
-            printf("Invalid simulation time provided. Default simulation time of %d minutes running.\n", provided_time);
-        }
-
-
-    }
+    validate_resources(argc, argv);
     
     printf("Starting simulation of %d minutes!\n", provided_time);
+    printf("Resources: %d runways, %d gates and %d towers slots.\n", available_runways, available_gates, available_tower_slots);
 
     srand(time(NULL));
 
     time_t start_time = time(NULL);
     time_t current_time;
-
-    short int num_threads = 0;
 
     pthread_t *flight_threads = NULL;
     Flight **flights = NULL;

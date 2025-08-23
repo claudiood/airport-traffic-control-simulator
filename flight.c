@@ -47,7 +47,7 @@ void *simulate_flight(void *arg){
         waiting_gate_queue(flight);
         waiting_tower_queue(flight);
 
-        //landing gate
+        //disembarkment
         while(True){
             if(sem_trywait(&gate_sem) == 0){
                 if(sem_trywait(&tower_sem) == 0){
@@ -161,6 +161,7 @@ void *simulate_flight(void *arg){
         waiting_tower_queue(flight);
         waiting_gate_queue(flight);
 
+        //disembarkment
         while(True){
 
             if(flight->status == NORMAL && international_flight_waiting_tower > 0 && international_flight_waiting_gate > 0){

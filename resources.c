@@ -4,9 +4,10 @@
 #include "flight.h"
 #include "resources.h"
 
-short int international_sucessess = 0;
-short int national_sucessess = 0;
-short int national_crashes = 0;
+short int simulation_time = DEFAULT_SIMULATION_TIME;
+short int provided_time = DEFAULT_SIMULATION_TIME/60.0;
+
+short int num_threads = 0;
 
 short int international_flight_waiting_runway = 0;
 short int national_flight_waiting_runway = 0;
@@ -17,9 +18,13 @@ short int national_flight_waiting_gate = 0;
 short int international_flight_waiting_tower = 0;
 short int national_flight_waiting_tower = 0;
 
-short int available_runways;
-short int available_gates;
-short int available_tower_slots;
+short int available_runways = DEFAULT_RUNWAYS;
+short int available_gates = DEFAULT_GATES;
+short int available_tower_slots = DEFAULT_TOWER_SLOTS;
+
+short int international_sucessess = 0;
+short int national_sucessess = 0;
+short int national_crashes = 0;
 
 pthread_mutex_t summary;
 
@@ -54,6 +59,46 @@ void destroy_resources(){
     sem_destroy(&gate_sem);
     
     printf("Resources destroyed.\n");
+}
+
+void validate_resources(int argc, char *argv[]){
+
+    if(argc == 2){
+        provided_time = atoi(argv[1]);
+        simulation_time = provided_time * 60;
+
+        if(provided_time <= 0){
+            provided_time = DEFAULT_SIMULATION_TIME/60;
+            simulation_time = DEFAULT_SIMULATION_TIME;
+            printf("Invalid simulation time provided. Default simulation time of %d minutes running.\n", provided_time);
+        }
+    }
+    if(argc == 5){
+        provided_time = atoi(argv[1]);
+        simulation_time = provided_time * 60;
+
+        available_runways = atoi(argv[2]);
+        available_gates = atoi(argv[3]);
+        available_tower_slots = atoi(argv[4]);
+
+        if(available_runways <= 0 || available_gates <=0 || available_tower_slots <= 0){
+            available_runways = DEFAULT_RUNWAYS;
+            available_gates = DEFAULT_GATES;
+            available_tower_slots = DEFAULT_TOWER_SLOTS;
+
+            printf("Invalid quantity of resources. Each resource must have at least 1 quantity. Default simulation resources of %d runways, %d gates and %d towers slots.\n", available_runways, available_gates, available_tower_slots);
+        }
+    }
+    if((argc > 2 && argc < 5) || argc > 5){
+        provided_time = atoi(argv[1]);
+        simulation_time = provided_time * 60;
+
+        available_runways = DEFAULT_RUNWAYS;
+        available_gates = DEFAULT_GATES;
+        available_tower_slots = DEFAULT_TOWER_SLOTS;
+
+        printf("Invalid quantity of resources. Each resource must have at least 1 quantity. Default simulation resources of %d runways, %d gates and %d towers slots.\n", available_runways, available_gates, available_tower_slots);
+    }
 }
 
 void waiting_runway_queue(Flight *flight){
